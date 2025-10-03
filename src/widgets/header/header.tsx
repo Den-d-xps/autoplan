@@ -10,6 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link } from 'react-router';
+import { LoginButton } from '../../features/auth/component/login-button/login-button';
 // import ThemeSwitcher from './ThemeSwitcher';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
@@ -116,7 +117,7 @@ export default function Header({
             sx={{ marginLeft: 'auto' }}
           >
             <Stack direction="row" alignItems="center">
-              {/* <ThemeSwitcher /> */}
+              <LoginButton />
             </Stack>
           </Stack>
         </Stack>
