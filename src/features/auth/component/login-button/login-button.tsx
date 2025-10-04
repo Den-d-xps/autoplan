@@ -1,17 +1,16 @@
 import { Button } from "@mui/material";
-import { invoke } from "@tauri-apps/api/core";
+import { useAppDispatch } from "../../../../app/providers/store/store";
+import { handleLogin } from "../../model/thunks";
+
 
 export function LoginButton() {
-  const handleLogin = async () => {
-    await invoke("launch_login_browser");
-  };
+  const dispatch = useAppDispatch();
 
   return (
     <Button 
-      onClick={handleLogin}
+      onClick={() => dispatch(handleLogin())}
       variant="contained"
       color="secondary"
-      
     >
     Войти
     </Button>

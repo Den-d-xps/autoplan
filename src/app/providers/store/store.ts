@@ -4,9 +4,10 @@ import {
   useDispatch as dispatchHook,
   useSelector as selectorHook
 } from 'react-redux';
+import authSlice from '../../../features/auth/model/auth-slice';
 
 const rootReducer = combineSlices(
-  // здесь слайсы
+  authSlice
 );
 
 export const store = configureStore({
