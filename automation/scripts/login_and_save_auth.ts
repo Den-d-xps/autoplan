@@ -1,20 +1,16 @@
 import { chromium } from "playwright";
 import fs from "fs";
-import path from "path";
-import os from "os";
+import { PATHS } from "../constants/paths.js";
 
 (async () => {
-  const baseDir = path.join(os.homedir(), ".autoplan");
-  const profileDir = path.join(baseDir, "profile");
-  const authFilePath = path.join(baseDir, "auth.json");
 
   // Создаем папки
-  if (!fs.existsSync(baseDir)) fs.mkdirSync(baseDir, { recursive: true });
-  if (!fs.existsSync(profileDir)) fs.mkdirSync(profileDir, { recursive: true });
+  if (!fs.existsSync(PATHS.BASE_DIR)) fs.mkdirSync(PATHS.BASE_DIR, { recursive: true });
+  if (!fs.existsSync(PATHS.PROFILE_DIR)) fs.mkdirSync(PATHS.PROFILE_DIR, { recursive: true });
 
 
   // создаём persistent context, чтобы сохранять cookies/локальное хранилище
-  const context = await chromium.launchPersistentContext(profileDir, {
+  const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, {
     headless: false, // показываем окно пользователю для логина
   });
 
@@ -25,7 +21,7 @@ import os from "os";
   await page.waitForURL("**/dashboard", { timeout: 0 });
 
   // сохраняем auth.json
-  await context.storageState({ path: authFilePath });
+  await context.storageState({ path: PATHS.AUTH_FILE });
 
   await context.close();
 })();
