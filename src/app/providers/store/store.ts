@@ -5,9 +5,11 @@ import {
   useSelector as selectorHook
 } from 'react-redux';
 import authSlice from '../../../features/auth/model/auth-slice';
+import taskQueueSlice from '../../../entities/tasks/model/task-slice';
 
 const rootReducer = combineSlices(
-  authSlice
+  authSlice,
+  taskQueueSlice
 );
 
 export const store = configureStore({

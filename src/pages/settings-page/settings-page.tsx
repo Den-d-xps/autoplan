@@ -1,21 +1,32 @@
 import { Button } from "@mui/material";
-import { invoke } from "@tauri-apps/api/core";
+import { useAppDispatch, useAppSelector } from "../../app/providers/store/store";
+import { tasksActions, tasksSelectors } from "../../entities/tasks/model/task-slice";
+import { runNextTask } from "../../entities/tasks/model/task-thunks";
+
 
 export const SettingsPage = () => {
-  const handleClick = async () => {
-  console.log("click");
-  const obj = {
-      movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
-      timeValue: {hh: 0, mm: 4, ss: 24},
-      cinemaNumber: "72",
-    }
-  try {
-    const res = await invoke("set_light_macros", obj);
-    console.log("invoke result:", res);
-  } catch (e) {
-    console.error("invoke error:", e);
+  const dispatch = useAppDispatch();
+  const isRunningQueue = useAppSelector(tasksSelectors.selectIsRunning);
+
+  const handleClick = () => {
+
+  const obj1 = {
+    movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
+    timeValue: {hh: 0, mm: 4, ss: 28},
+    cinemaNumber: "72",
   }
-  console.log("after click");
+  const obj2 = {
+    movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
+    timeValue: {hh: 0, mm: 4, ss: 28},
+    cinemaNumber: "73",
+   }
+
+    dispatch(tasksActions.addTask({ script: "set_light_macros", payload: obj1}));
+    dispatch(tasksActions.addTask({ script: "set_light_macros", payload: obj2}));
+
+    if (!isRunningQueue) {
+      dispatch(runNextTask());
+    }
 };
   return (
     <>

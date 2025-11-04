@@ -8,7 +8,7 @@ import { PATHS } from "../constants/paths.js";
   const [,, movie_name, time_value, cinema_number] = process.argv;
 
   const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, {
-    // headless: false,
+    headless: false,
   });
   const page = await context.newPage();
   await page.goto("https://kinoplan.io/tms/content", { waitUntil: "networkidle" });
