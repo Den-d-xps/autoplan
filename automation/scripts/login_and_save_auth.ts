@@ -1,6 +1,7 @@
 import { chromium } from "playwright";
 import fs from "fs";
 import { PATHS } from "../constants/paths.js";
+import { URLS } from "../constants/urls.js";
 
 (async () => {
 
@@ -15,7 +16,7 @@ import { PATHS } from "../constants/paths.js";
   });
 
   const page = await context.newPage();
-  await page.goto("https://kinoplan.io/start");
+  await page.goto(URLS.LOGIN);
 
   // ждём пока пользователь попадает на dashboard
   await page.waitForURL("**/dashboard", { timeout: 0 });

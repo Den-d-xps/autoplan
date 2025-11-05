@@ -1,6 +1,7 @@
 import { chromium } from "playwright";
 import fs from "fs";
 import { PATHS } from "../constants/paths.js";
+import { URLS } from "../constants/urls.js";
 
 
 (async () => {
@@ -11,7 +12,7 @@ import { PATHS } from "../constants/paths.js";
   const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, { headless: true });
   const page = await context.newPage();
 
-  await page.goto("https://kinoplan.io/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto(URLS.DASHBOARD, { waitUntil: "domcontentloaded" });
 
   if (page.url().includes("/dashboard")) {
     await context.close();

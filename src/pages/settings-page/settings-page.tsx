@@ -12,13 +12,15 @@ export const SettingsPage = () => {
 
   const obj1 = {
     movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
-    timeValue: {hh: 0, mm: 4, ss: 28},
+    timeValue: {hh: 0, mm: 4, ss: 14},
     cinemaNumber: "72",
+    position: 'start'
   }
   const obj2 = {
     movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
-    timeValue: {hh: 0, mm: 4, ss: 28},
+    timeValue: {hh: 0, mm: 4, ss: 14},
     cinemaNumber: "73",
+    position: 'end'
    }
 
     dispatch(tasksActions.addTask({ script: "set_light_macros", payload: obj1}));
