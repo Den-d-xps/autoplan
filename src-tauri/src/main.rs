@@ -53,9 +53,14 @@ async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value,
     // Читаем строки stdout по мере появления
     for line in reader.lines() {
         if let Ok(msg) = line {
-            // Шлём фронту событие
-            app.emit("macro-progress", msg.clone())
-                .map_err(|e| e.to_string())?;
+            if let Ok(json) = serde_json::from_str::<Value>(&msg) {
+                app.emit("macro-progress", json).ok();
+            } else {
+                app.emit("macro-progress", serde_json::json!({
+                    "progress": null,
+                    "message": msg
+                })).ok();
+            }
         }
     }
 

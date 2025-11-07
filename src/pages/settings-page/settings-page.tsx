@@ -1,12 +1,26 @@
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../app/providers/store/store";
 import { tasksActions, tasksSelectors } from "../../entities/tasks/model/task-slice";
 import { runNextTask } from "../../entities/tasks/model/task-thunks";
+import { listen } from "@tauri-apps/api/event";
+import { useEffect, useState } from "react";
 
 
 export const SettingsPage = () => {
   const dispatch = useAppDispatch();
   const isRunningQueue = useAppSelector(tasksSelectors.selectIsRunning);
+  const [ text, setText ] = useState("");
+
+  useEffect(() => {
+    const unlisten = listen("macro-progress", (event) => {
+      const payload = event.payload as { progress: number; message: string };
+      setText(payload.message);
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, [dispatch]);
 
   const handleClick = () => {
 
@@ -40,6 +54,9 @@ export const SettingsPage = () => {
       >
         КНОПКА
       </Button>
+      <Typography>
+        {text}
+      </Typography>
     </>
   )
 };

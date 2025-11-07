@@ -2,16 +2,19 @@ import { chromium } from "playwright";
 import { PATHS } from "../constants/paths.js";
 import { URLS } from "../constants/urls.js";
 
-
+function report(progress: number, message: string) {
+  console.log(JSON.stringify({ progress, message }));
+}
 
 (async () => {
-  
+  report(0, "Запуск макроса установки света...");
   const [,, movie_name, time_value, cinema_number, position] = process.argv;
-
   const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, {
     headless: false,
   });
   const page = await context.newPage();
+
+  report(5, "Переход на страницу контента...");
   await page.goto(URLS.CONTENT, { waitUntil: "networkidle" });
 
   // Обьявление всех локаторов
@@ -46,7 +49,7 @@ import { URLS } from "../constants/urls.js";
   const selectStart = selectList.locator('.ui-select-option:has-text("С начала фильма")');
   const selectEnd = selectList.locator('.ui-select-option:has-text("С конца фильма")');
   
-  // Шаг 1: Выбор кинотеатра
+  report(10, "Поиск и выбор кинотеатра...");
   const count = await selectCinemaEl.count();
 
   for (let i = 0; i < count; i++) {
@@ -65,6 +68,7 @@ import { URLS } from "../constants/urls.js";
 
   
   // Шаг 2: Поиск и выбор пакета с фильмом
+  report(35, "Поиск пакета фильма...");
   await section.waitFor({ state: 'visible' });
 
   await searchSPLInput.waitFor({ state: 'visible' });
@@ -75,6 +79,7 @@ import { URLS } from "../constants/urls.js";
   await resultCheckbox.waitFor({ state: 'visible' }); 
   await resultCheckbox.click();
 
+  report(60, "Настройка времени метки света...");
   await lightButton.waitFor({ state: 'visible' }); 
   await lightButton.click();
 
@@ -96,6 +101,7 @@ import { URLS } from "../constants/urls.js";
   await MMInput.fill(timeValue.mm.toString());
   await SSInput.fill(timeValue.ss.toString());
 
+  report(80, "Время успешно установлено.");
   await selectButton.waitFor({ state: 'visible' });
   await selectButton.click();
 
@@ -110,10 +116,12 @@ import { URLS } from "../constants/urls.js";
     await selectEnd.click();
   }
 
+  report(95, "Применение изменений...");
   await submitButton.waitFor({ state: 'visible' });
   await submitButton.click();
 
   await popupContainer.waitFor({ state: 'detached' })
 
+  report(100, "Готово!");
   await context.close();
 })();
