@@ -2,8 +2,19 @@ import { chromium } from "playwright";
 import { PATHS } from "../constants/paths.js";
 import { URLS } from "../constants/urls.js";
 
-function report(progress: number, message: string) {
-  console.log(JSON.stringify({ progress, message }));
+function report(progress: number | null, message: string, type: "info" | "error" = "info") {
+  console.log(JSON.stringify({ progress, message, type }));
+}
+
+async function safeStep(progress: number, message: string, stepFn: () => Promise<void>) {
+  try {
+    report(progress, message);
+    await stepFn();
+  } catch (err: any) {
+    const errorMsg = `${err.message || err}`;
+    report(progress, errorMsg, "error");
+    process.exit(1);
+  }
 }
 
 (async () => {
@@ -14,24 +25,30 @@ function report(progress: number, message: string) {
   });
   const page = await context.newPage();
 
-  report(5, "Переход на страницу контента...");
-  await page.goto(URLS.CONTENT, { waitUntil: "networkidle" });
+  await safeStep(5, "Переход на страницу контента...", async () => {
+    await page.goto(URLS.CONTENT, { waitUntil: "networkidle" });
+  });
 
   // Обьявление всех локаторов
   const headerEl = page.locator(".b-header");
-  const currentCinemaEl = headerEl.locator(".b-current-cinema");
+  const desktopHeaderEl = headerEl.locator(".kinoplan-header");
+  const currentCinemaEl = desktopHeaderEl.locator(".b-current-cinema");
   const selectCinemaEl = currentCinemaEl.locator(".b-header-select");
   const dropdownSelectorEl = currentCinemaEl.locator(".b-dropdown-selector");
   const dropdownSelectorSearch = dropdownSelectorEl.locator(".b-dropdown-selector-search");
   const searchCinemaInput = dropdownSelectorSearch.locator("input[placeholder='Поиск']");
   const searchCinemaResult = dropdownSelectorEl.locator(".b-dropdown-selector-items");
+  const notFoundCinema = searchCinemaResult.locator('.b-dropdown-selector-search_not-found');
   const firstCinemaResult = searchCinemaResult.locator(".b-dropdown-selector-item").first();
   const section = page.locator(".kinoplan-section");
   const sectionHeader = section.locator(".b-tms-content__space");
   const sectionContent = section.locator(".b-tms-content-wrapper");
   const searchSPLInput = sectionHeader.locator("input[placeholder='Название пакета или релиза']");
+  const notFoundMovie = sectionContent.locator('span:has-text("Ничего не найдено")')
   const tableResults = sectionContent.locator(".b-simple-table-body");
-  const firstSPLResult = tableResults.locator(".b-simple-table-row").first();
+  const rowsTableResults = tableResults.locator(".b-simple-table-row");
+  const firstSPLResult = rowsTableResults.first();
+  const macroInfo = firstSPLResult.locator(".b-simple-table-cell:has-text('Время титров')");
   const resultCheckbox = firstSPLResult.locator(".checkbox__input");
   const lightButton = sectionHeader.locator('button:has(span:has-text("Свет"))');
   const popupContainer = page.locator(".ui-popup-container");
@@ -49,78 +66,95 @@ function report(progress: number, message: string) {
   const selectStart = selectList.locator('.ui-select-option:has-text("С начала фильма")');
   const selectEnd = selectList.locator('.ui-select-option:has-text("С конца фильма")');
   
-  report(10, "Поиск и выбор кинотеатра...");
-  const count = await selectCinemaEl.count();
 
-  for (let i = 0; i < count; i++) {
-    const el = selectCinemaEl.nth(i);
-    if (await el.isVisible()) {
-      await el.click();
-      break;
+  // Шаг 1: Поиск и выбор кинотеатра
+  await safeStep(20, "Поиск и выбор кинотеатра...", async () => {
+    await selectCinemaEl.waitFor({ state: "visible" });
+    await selectCinemaEl.click();
+    await searchCinemaInput.waitFor({ state: "visible" });
+    await searchCinemaInput.fill(cinema_number);
+    await page.waitForTimeout(1000);
+
+    const resultFound = await Promise.race([
+      firstCinemaResult.waitFor({ state: "visible", timeout: 5000 }).then(() => true).catch(() => false),
+      notFoundCinema.waitFor({ state: "visible", timeout: 5000 }).then(() => false).catch(() => false),
+    ]);
+
+    if (!resultFound) {
+      throw new Error("Кинотеатр не найден...");
+    } else {
+      await firstCinemaResult.click();
     }
-  }
+  });
 
-  await searchCinemaInput.waitFor({ state: 'visible' });
-  await searchCinemaInput.fill(cinema_number);
-  await page.waitForTimeout(1000);
-  await firstCinemaResult.waitFor({ state: 'visible' });
-  await firstCinemaResult.click();
-
-  
   // Шаг 2: Поиск и выбор пакета с фильмом
-  report(35, "Поиск пакета фильма...");
-  await section.waitFor({ state: 'visible' });
+  await safeStep(35, "Поиск CPL пакета...", async () => {
+    await section.waitFor({ state: 'visible' });
+    await searchSPLInput.waitFor({ state: 'visible' });
+    await searchSPLInput.fill(movie_name);
 
-  await searchSPLInput.waitFor({ state: 'visible' });
-  await searchSPLInput.fill(movie_name);
+    const resultFound = await Promise.race([
+      tableResults.waitFor({ state: "visible", timeout: 5000 }).then(() => true).catch(() => false),
+      notFoundMovie.waitFor({ state: "visible", timeout: 5000 }).then(() => false).catch(() => false),
+    ]);
 
-  await tableResults.waitFor({ state: 'visible' });
-  await firstSPLResult.waitFor({ state: 'visible' });
-  await resultCheckbox.waitFor({ state: 'visible' }); 
-  await resultCheckbox.click();
+    if (!resultFound) {
+      throw new Error("CPL не найден...");
+    }
+    
+    await firstSPLResult.waitFor({ state: 'visible' });
+    await macroInfo.waitFor({ state: 'visible' });
+    const macroinfoText = await macroInfo.textContent();
 
-  report(60, "Настройка времени метки света...");
-  await lightButton.waitFor({ state: 'visible' }); 
-  await lightButton.click();
 
+    await resultCheckbox.waitFor({ state: 'visible' }); 
+    await resultCheckbox.click();
+  })
+  
+  // Шаг 3: открытие окна "Свет"
+  await safeStep(55, "Настройка времени метки света.", async () => {
+    await lightButton.waitFor({ state: "visible" });
+    await lightButton.click();
+    await popupContainer.waitFor({ state: "visible" });
+  });
 
-  // Шаг 3: Внести время метки
-  popupContainer.waitFor({ state: 'visible' });
+  // Шаг 4: ввод времени
+  await safeStep(75, "Настройка времени метки света..", async () => {
+    await uiInput.waitFor({ state: "visible" });
+    await uiInput.click();
 
-  await popupBody.waitFor({ state: 'visible' });
-  await uiInput.waitFor({ state: 'visible' });
-  await uiInput.click();
+    await timeInputConteiner.waitFor({ state: "visible" });
+    await HHInput.waitFor({ state: "visible" });
+    await MMInput.waitFor({ state: "visible" });
+    await SSInput.waitFor({ state: "visible" });
 
-  await timeInputConteiner.waitFor({ state: 'visible' });
-  await HHInput.waitFor({ state: 'visible' });
-  await MMInput.waitFor({ state: 'visible' });
-  await SSInput.waitFor({ state: 'visible' });
+    const timeValue = JSON.parse(time_value);
+    await HHInput.fill(timeValue.hh.toString());
+    await MMInput.fill(timeValue.mm.toString());
+    await SSInput.fill(timeValue.ss.toString());
+  });
 
-  const timeValue = JSON.parse(time_value);
-  await HHInput.fill(timeValue.hh.toString());
-  await MMInput.fill(timeValue.mm.toString());
-  await SSInput.fill(timeValue.ss.toString());
+  // Шаг 5: выбор позиции (с начала / с конца)
+  await safeStep(85, "Настройка времени метки света...", async () => {
+    await selectButton.waitFor({ state: "visible" });
+    await selectButton.click();
+    await selectUnderlayer.waitFor({ state: "visible" });
+    await selectList.waitFor({ state: 'visible' });
+    await selectStart.waitFor({ state: 'visible' });
+    await selectEnd.waitFor({ state: 'visible' });
+    if (position === "start") {
+      await selectStart.click();
+    } else {
+      await selectEnd.click();
+    }
+  });
 
-  report(80, "Время успешно установлено.");
-  await selectButton.waitFor({ state: 'visible' });
-  await selectButton.click();
-
-  await selectUnderlayer.waitFor({ state: 'visible' });
-  await selectList.waitFor({ state: 'visible' });
-  await selectStart.waitFor({ state: 'visible' });
-  await selectEnd.waitFor({ state: 'visible' });
-
-  if (position === 'start') {
-    await selectStart.click();
-  } else {
-    await selectEnd.click();
-  }
-
-  report(95, "Применение изменений...");
-  await submitButton.waitFor({ state: 'visible' });
-  await submitButton.click();
-
-  await popupContainer.waitFor({ state: 'detached' })
+  // Шаг 6: установка макроса
+  await safeStep(95, "Применение изменений...", async () => {
+    await submitButton.waitFor({ state: "visible" });
+    await submitButton.click();
+    await popupContainer.waitFor({ state: "detached" });
+  });
 
   report(100, "Готово!");
   await context.close();
