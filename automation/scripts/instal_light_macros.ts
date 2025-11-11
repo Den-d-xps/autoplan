@@ -23,6 +23,8 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
   const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, {
     headless: false,
   });
+  const timeValue = JSON.parse(time_value);
+
   const page = await context.newPage();
 
   await safeStep(5, "Переход на страницу контента...", async () => {
@@ -103,22 +105,30 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
     }
     
     await firstSPLResult.waitFor({ state: 'visible' });
+  })
+
+  // Шаг 3: Проверка: Метка уже установлена?
+  await safeStep(50, "Проверка на существующую метку", async () => {
     await macroInfo.waitFor({ state: 'visible' });
-    const macroinfoText = await macroInfo.textContent();
+    const macroText = await macroInfo.innerText();
+    const targetTime = `${timeValue.hh.toString().padStart(2, "0")}:${timeValue.mm.toString().padStart(2, "0")}:${timeValue.ss.toString().padStart(2, "0")}`;
+    const targetPosition = position === "start" ? "с начала фильма" : "с конца фильма";
 
-
+    if (macroText.includes(targetTime) && macroText.includes(targetPosition)) {
+      throw new Error("Такая метка уже установлена!");
+    }
+  });
+  
+  // Шаг 4: открытие окна "Свет"
+  await safeStep(55, "Настройка времени метки света.", async () => {
     await resultCheckbox.waitFor({ state: 'visible' }); 
     await resultCheckbox.click();
-  })
-  
-  // Шаг 3: открытие окна "Свет"
-  await safeStep(55, "Настройка времени метки света.", async () => {
     await lightButton.waitFor({ state: "visible" });
     await lightButton.click();
     await popupContainer.waitFor({ state: "visible" });
   });
 
-  // Шаг 4: ввод времени
+  // Шаг 5: ввод времени
   await safeStep(75, "Настройка времени метки света..", async () => {
     await uiInput.waitFor({ state: "visible" });
     await uiInput.click();
@@ -128,13 +138,13 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
     await MMInput.waitFor({ state: "visible" });
     await SSInput.waitFor({ state: "visible" });
 
-    const timeValue = JSON.parse(time_value);
+    // const timeValue = JSON.parse(time_value);
     await HHInput.fill(timeValue.hh.toString());
     await MMInput.fill(timeValue.mm.toString());
     await SSInput.fill(timeValue.ss.toString());
   });
 
-  // Шаг 5: выбор позиции (с начала / с конца)
+  // Шаг 6: выбор позиции (с начала / с конца)
   await safeStep(85, "Настройка времени метки света...", async () => {
     await selectButton.waitFor({ state: "visible" });
     await selectButton.click();
@@ -149,7 +159,7 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
     }
   });
 
-  // Шаг 6: установка макроса
+  // Шаг 7: установка макроса
   await safeStep(95, "Применение изменений...", async () => {
     await submitButton.waitFor({ state: "visible" });
     await submitButton.click();

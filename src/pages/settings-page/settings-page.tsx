@@ -26,8 +26,8 @@ export const SettingsPage = () => {
 
   const obj1 = {
     movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
-    timeValue: {hh: 0, mm: 4, ss: 32},
-    cinemaNumber: "172",
+    timeValue: {hh: 0, mm: 4, ss: 33},
+    cinemaNumber: "72",
     position: 'end'
   }
   const obj2 = {
