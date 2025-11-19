@@ -15,12 +15,14 @@ export const taskQueueSlice = createSlice({
       reducer(state, action: PayloadAction<TTask>) {
         state.queue.push(action.payload);
       },
-      prepare(task: Omit<TTask, "id" | "status">) {
+      prepare(task: Omit<TTask, "id" | "status" | "progress" | "message">) {
         return {
           payload: {
             ...task,
             status: Status.pending,
             id: nanoid(),
+            progress: 0,
+            message: "",
           },
         };
       }
@@ -33,6 +35,14 @@ export const taskQueueSlice = createSlice({
         if (error) {
           task.error = error;
         }
+      }
+    },
+    updateProgress: (state, action: PayloadAction<{ id: string; progress: number; message: string }>) => {
+      const { id, progress, message } = action.payload;
+      const task = state.queue.find((task) => task.id === id);
+      if (task) {
+        task.progress = progress;
+        task.message = message;
       }
     },
     setRunning: (state, action: PayloadAction<boolean>) => {

@@ -10,6 +10,8 @@ export type TTask = {
   script: string;
   payload: {}
   status: Status;
+  progress: number;
+  message: string;
   error?: string
 };
 
