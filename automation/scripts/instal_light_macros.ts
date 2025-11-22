@@ -2,8 +2,10 @@ import { chromium } from "playwright";
 import { PATHS } from "../constants/paths.js";
 import { URLS } from "../constants/urls.js";
 
-function report(progress: number | null, message: string, type: "info" | "error" = "info") {
-  console.log(JSON.stringify({ progress, message, type }));
+const [,, movie_name, time_value, cinema_number, position, id] = process.argv;
+
+function report( progress: number | null, message: string, type: "info" | "error" = "info") {
+  console.log(JSON.stringify({ progress, message, type, id }));
 }
 
 async function safeStep(progress: number, message: string, stepFn: () => Promise<void>) {
@@ -19,7 +21,6 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
 
 (async () => {
   report(0, "Запуск макроса установки света...");
-  const [,, movie_name, time_value, cinema_number, position] = process.argv;
   const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, {
     headless: false,
   });
@@ -166,6 +167,6 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
     await popupContainer.waitFor({ state: "detached" });
   });
 
-  report(100, "Готово!");
+  report(100, "");
   await context.close();
 })();

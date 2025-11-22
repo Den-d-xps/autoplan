@@ -18,7 +18,7 @@ export const runNextTask = createAsyncThunk(
 
     try {
       dispatch(tasksActions.updateStatus({ id: task.id, status: Status.running })); 
-      await invoke(task.script, task.payload);
+      await invoke(task.script, { ...task.payload, id: task.id });
       dispatch(tasksActions.updateStatus({ id: task.id, status: Status.finished }));
     } catch (err) {
       dispatch(tasksActions.updateStatus({ id: task.id, status: Status.error, error: err as string }));

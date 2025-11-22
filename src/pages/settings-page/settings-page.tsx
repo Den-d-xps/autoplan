@@ -4,7 +4,21 @@ import { tasksActions, tasksSelectors } from "../../entities/tasks/model/task-sl
 import { runNextTask } from "../../entities/tasks/model/task-thunks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
+import { TaskLightMacros } from "../../features/light-macros/components/task-light-macros/task-light-macros";
+import { TaskList } from "../../widgets/task-list/task-list";
 
+const obj1 = {
+  movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
+  timeValue: {hh: 0, mm: 4, ss: 34},
+  cinemaNumber: "72",
+  position: 'end'
+}
+const obj2 = {
+  movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
+  timeValue: {hh: 0, mm: 4, ss: 34},
+  cinemaNumber: "73",
+  position: 'start'
+}
 
 export const SettingsPage = () => {
   const dispatch = useAppDispatch();
@@ -13,8 +27,8 @@ export const SettingsPage = () => {
 
   useEffect(() => {
     const unlisten = listen("macro-progress", (event) => {
-      const payload = event.payload as { progress: number; message: string };
-      setText(payload.message);
+      const payload = event.payload as { progress: number; message: string; id: string };
+      dispatch(tasksActions.updateProgress({...payload}));
     });
 
     return () => {
@@ -23,19 +37,6 @@ export const SettingsPage = () => {
   }, [dispatch]);
 
   const handleClick = () => {
-
-  const obj1 = {
-    movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
-    timeValue: {hh: 0, mm: 4, ss: 33},
-    cinemaNumber: "72",
-    position: 'end'
-  }
-  const obj2 = {
-    movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
-    timeValue: {hh: 0, mm: 4, ss: 32},
-    cinemaNumber: "73",
-    position: 'start'
-   }
 
     dispatch(tasksActions.addTask({ script: "set_light_macros", payload: obj1}));
     dispatch(tasksActions.addTask({ script: "set_light_macros", payload: obj2}));
@@ -54,9 +55,8 @@ export const SettingsPage = () => {
       >
         КНОПКА
       </Button>
-      <Typography>
-        {text}
-      </Typography>
+
+      <TaskList />
     </>
   )
 };

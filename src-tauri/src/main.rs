@@ -32,7 +32,7 @@ async fn check_auth() -> Result<bool, String> {
 }
 
 #[tauri::command]
-async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value, cinema_number: String, position: String) -> Result<String, String> {
+async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value, cinema_number: String, position: String, id: String) -> Result<String, String> {
     let script_path = "../automation/dist/scripts/instal_light_macros.js";
     println!("🚀 Запуск: {:?}", script_path);
     // Запускаем Node.js процесс с playwright
@@ -43,6 +43,7 @@ async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value,
         .arg(&time_value_str)
         .arg(&cinema_number)
         .arg(&position)
+        .arg(&id)
         .stdout(Stdio::piped())
         .spawn()
         .map_err(|e| e.to_string())?;
