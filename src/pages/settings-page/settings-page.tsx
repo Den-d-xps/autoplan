@@ -3,9 +3,9 @@ import { useAppDispatch, useAppSelector } from "../../app/providers/store/store"
 import { tasksActions, tasksSelectors } from "../../entities/tasks/model/task-slice";
 import { runNextTask } from "../../entities/tasks/model/task-thunks";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
-import { TaskLightMacros } from "../../features/light-macros/components/task-light-macros/task-light-macros";
+import { useEffect } from "react";
 import { TaskList } from "../../widgets/task-list/task-list";
+
 
 const obj1 = {
   movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
@@ -23,11 +23,10 @@ const obj2 = {
 export const SettingsPage = () => {
   const dispatch = useAppDispatch();
   const isRunningQueue = useAppSelector(tasksSelectors.selectIsRunning);
-  const [ text, setText ] = useState("");
 
   useEffect(() => {
     const unlisten = listen("macro-progress", (event) => {
-      const payload = event.payload as { progress: number; message: string; id: string };
+      const payload = event.payload as { progress: number; message: string; id: string; error?: string };
       dispatch(tasksActions.updateProgress({...payload}));
     });
 
@@ -55,7 +54,6 @@ export const SettingsPage = () => {
       >
         КНОПКА
       </Button>
-
       <TaskList />
     </>
   )
