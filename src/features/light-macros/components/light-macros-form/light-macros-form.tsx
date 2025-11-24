@@ -18,20 +18,23 @@ export const LightMacrosForm = ({ onSubmit }: TLightMacrosForm) => {
     },
   });
 
-  const handleDataFormat = (data: FormData) => {
-    return {
-      ...data,
-      time: {
+  const transformData = (data: FormData) => {
+    const newData = {
+       ...data,
+       time: {
         hh: data.time?.format("HH"),
         mm: data.time?.format("mm"),
         ss: data.time?.format("ss"),
-      },
-    }
-  };
+       }
+    };
+
+    onSubmit(newData);
+  }
+
 
   return (
     <FormProvider {...methods}>
-      <LightMacrosFormUI onSubmit={methods.handleSubmit(onSubmit)} />
+      <LightMacrosFormUI onSubmit={methods.handleSubmit(transformData)} />
     </FormProvider>
   );
 }
