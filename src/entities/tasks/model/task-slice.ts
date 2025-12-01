@@ -59,4 +59,3 @@ export const taskQueueSlice = createSlice({
 export const tasksActions = taskQueueSlice.actions;
 export const tasksSelectors = taskQueueSlice.selectors;
 
-export default taskQueueSlice;

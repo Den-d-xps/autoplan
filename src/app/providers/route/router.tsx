@@ -1,8 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "./app-layout";
-import { LightMacrosPage } from "../../../pages/light-macros-page/light-macros- page";
-import { InfoPage } from "../../../pages/info-page/info-page";
-import { SettingsPage } from "../../../pages/settings-page/settings-page";
+import { LightMacrosPage, InfoPage, SettingsPage } from "@pages/";
 
 
 export const router = createBrowserRouter([

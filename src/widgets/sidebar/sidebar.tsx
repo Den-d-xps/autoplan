@@ -27,12 +27,12 @@ export interface DashboardSidebarProps {
   container?: Element;
 }
 
-export default function Sidebar({
+export const Sidebar = ({
   expanded = true,
   setExpanded,
   disableCollapsibleSidebar = false,
   container,
-}: DashboardSidebarProps) {
+}: DashboardSidebarProps) => {
   const theme = useTheme();
 
   const { pathname } = useLocation();

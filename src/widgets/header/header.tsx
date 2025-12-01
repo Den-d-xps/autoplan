@@ -10,7 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link } from 'react-router';
-import { LoginButton } from '../../features/auth/component/login-button/login-button';
+import { LoginButton } from '@feat/auth/';
 // import ThemeSwitcher from './ThemeSwitcher';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
@@ -39,12 +39,12 @@ export interface DashboardHeaderProps {
   onToggleMenu: (open: boolean) => void;
 }
 
-export default function Header({
+export const Header = ({
   logo,
   title,
   menuOpen,
   onToggleMenu,
-}: DashboardHeaderProps) {
+}: DashboardHeaderProps) => {
   const theme = useTheme();
 
   const handleMenuOpen = React.useCallback(() => {

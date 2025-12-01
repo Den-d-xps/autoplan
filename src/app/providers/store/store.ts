@@ -4,8 +4,9 @@ import {
   useDispatch as dispatchHook,
   useSelector as selectorHook
 } from 'react-redux';
-import authSlice from '../../../features/auth/model/auth-slice';
-import taskQueueSlice from '../../../entities/tasks/model/task-slice';
+import { authSlice } from '@feat/auth/model';
+import { taskQueueSlice } from '@entities/tasks';
+
 
 const rootReducer = combineSlices(
   authSlice,

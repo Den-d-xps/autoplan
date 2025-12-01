@@ -1,10 +1,18 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Chip, LinearProgress, Typography } from "@mui/material";
-import { Status } from "../../../../entities/tasks/model/types";
+import { Avatar, 
+  Box, 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  Chip, 
+  LinearProgress, 
+  Typography 
+} from "@mui/material";
 import ErrorIcon from "@mui/icons-material/Error";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import WbIncandescent from "@mui/icons-material/WbIncandescent";
+import { Status } from "@entities/tasks";
 import type { TTaskLightMacrosPropsUI } from "./types";
 import type React from "react";
 

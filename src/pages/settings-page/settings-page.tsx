@@ -1,8 +1,9 @@
-import { useAppDispatch } from "../../app/providers/store/store";
-import { tasksActions } from "../../entities/tasks/model/task-slice";
+import { useAppDispatch } from "@store";
+import { tasksActions } from "@entities/tasks/";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect } from "react";
-import { TaskList } from "../../widgets/task-list/task-list";
+import { TaskList } from "@widgets/";
+
 
 
 export const SettingsPage = () => {

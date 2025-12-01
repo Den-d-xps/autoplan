@@ -1,16 +1,9 @@
 import { Box, Divider, Typography } from "@mui/material";
-import { LightMacrosForm } from "../../features/light-macros/components/light-macros-form/light-macros-form";
-import type { TFormDataWithConvertedTime } from "../../features/light-macros/components/light-macros-form/types";
-import { useAppDispatch, useAppSelector } from "../../app/providers/store/store";
-import { tasksActions, tasksSelectors } from "../../entities/tasks/model/task-slice";
-import { runNextTask } from "../../entities/tasks/model/task-thunks";
+import { LightMacrosForm } from "@feat/light-macros/";
+import type { TFormDataWithConvertedTime } from "@feat/light-macros/";
+import { useAppDispatch, useAppSelector } from "@store";
+import { tasksActions, tasksSelectors, runNextTask } from "@entities/tasks/";
 
-// const obj1 = {
-//   movieName: "Afterburn_FTR-2_S_EN-XX_INT_51_4K_INDI_20250319_DL",
-//   timeValue: {hh: 0, mm: 4, ss: 34},
-//   cinemaNumber: "72",
-//   position: 'end'
-// }
 
 export const LightMacrosPage = () => {
   const dispatch = useAppDispatch();

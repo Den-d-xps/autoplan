@@ -2,7 +2,7 @@ import { Box, Button } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { RadioButtonGroup, TextFieldElement } from "react-hook-form-mui";
 import { TimePickerElement } from "react-hook-form-mui/date-pickers";
-import { CinemaMultiSelectButtons } from "../cinema-multi-select-buttons.ts/cinema-multi-select-buttons";
+import { CinemaMultiSelectButtons } from "../cinema-multi-select-buttons.ts/";
 import type { TLightMacrosFormUI } from "./types";
 
 

@@ -1,6 +1,5 @@
-import { useAppSelector } from "../../../../app/providers/store/store";
-import { tasksSelectors } from "../../../../entities/tasks/model/task-slice";
-import { Status } from "../../../../entities/tasks/model/types";
+import { useAppSelector } from "@store";
+import { tasksSelectors, Status } from "@entities/tasks/";
 import { TaskLightMacrosUI } from "./task-light-macros-ui";
 
 export type TTaskLightMacrosProps = {

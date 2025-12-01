@@ -1,14 +1,14 @@
 import './App.css'
 import { RouterProvider } from 'react-router-dom';
-import { router } from './providers/route/router';
+import { router } from '@router';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppTheme from '../features/theme/AppTheme';
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Provider } from 'react-redux';
-import { store } from './providers/store/store';
+import { store } from '@store';
 
-function App() {
+export const App = () => {
   return (
     <AppTheme>
       <Provider store={store}>

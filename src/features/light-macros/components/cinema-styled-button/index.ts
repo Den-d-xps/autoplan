@@ -1,0 +1,1 @@
+export { CinemaStyledButton } from './cinema-styled-button';

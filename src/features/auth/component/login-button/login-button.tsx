@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
-import { useAppDispatch } from "../../../../app/providers/store/store";
-import { handleLogin } from "../../model/thunks";
+import { useAppDispatch } from "@store";
+import { handleLogin } from "@feat/auth/";
 
 
 export function LoginButton() {

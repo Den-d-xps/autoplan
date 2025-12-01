@@ -1,6 +1,6 @@
 import { Badge, Box, Chip, Paper, Typography } from "@mui/material";
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
-import { CinemaStyledButton } from "../cinema-styled-button/cinema-styled-button";
+import { CinemaStyledButton } from "../cinema-styled-button/";
 import type { TCinemaMultiSelectButtonsUIProps } from "./types";
 
 

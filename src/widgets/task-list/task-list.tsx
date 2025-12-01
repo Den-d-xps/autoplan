@@ -1,6 +1,6 @@
-import { useAppSelector } from "../../app/providers/store/store";
-import { tasksSelectors } from "../../entities/tasks/model/task-slice";
-import { TaskLightMacros } from "../../features/light-macros/components/task-light-macros/task-light-macros";
+import { useAppSelector } from "@store";
+import { tasksSelectors } from "@entities/tasks/";
+import { TaskLightMacros } from "@feat/light-macros/";
 
 export const TaskList: React.FC = () => {
 
