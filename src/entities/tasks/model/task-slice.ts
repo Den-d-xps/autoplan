@@ -51,6 +51,7 @@ export const taskQueueSlice = createSlice({
   },
   selectors: {
     selectTasks: (state) => state.queue,
+    selectTasksLength: (state) => state.queue.length,
     selectIsRunning: (state) => state.isRunning,
     selectTaskById: (state) => (id: string) => state.queue.find((task) => task.id === id),
   },

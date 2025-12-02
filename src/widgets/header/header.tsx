@@ -11,6 +11,7 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link } from 'react-router';
 import { LoginButton } from '@feat/auth/';
+import { TaskBadge } from '@entities/tasks';
 // import ThemeSwitcher from './ThemeSwitcher';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
@@ -116,7 +117,9 @@ export const Header = ({
             spacing={1}
             sx={{ marginLeft: 'auto' }}
           >
+            <TaskBadge />
             <Stack direction="row" alignItems="center">
+              
               <LoginButton />
             </Stack>
           </Stack>
