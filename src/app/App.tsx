@@ -7,6 +7,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Provider } from 'react-redux';
 import { store } from '@store';
+import { useTauriEvent } from '@/entities/tasks';
 
 export const App = () => {
   return (
@@ -14,11 +15,14 @@ export const App = () => {
       <Provider store={store}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <CssBaseline enableColorScheme />
-          <RouterProvider router={router} />
+          <InitialApp />
         </LocalizationProvider>
       </Provider>
     </ AppTheme>
   )
 }
 
-export default App
+const InitialApp = () => {
+  useTauriEvent();
+  return <RouterProvider router={router} />
+}
