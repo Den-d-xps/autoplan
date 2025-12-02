@@ -132,7 +132,7 @@ export const Sidebar = ({
               flexBasis: '100%',
             }}
           >
-            <SidebarHeaderItem>Основоной  функционал</SidebarHeaderItem>
+            <SidebarHeaderItem>Сценарии автоматизации</SidebarHeaderItem>
             <SidebarPageItem
               id="light-macros"
               title="Метки света"

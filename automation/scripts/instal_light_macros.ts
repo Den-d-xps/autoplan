@@ -22,7 +22,7 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
 (async () => {
   report(0, "Запуск макроса установки света...");
   const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, {
-    headless: false,
+    headless: true,
   });
   const timeValue = JSON.parse(time_value);
 

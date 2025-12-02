@@ -28,7 +28,7 @@ export const LightMacrosPage = () => {
 
   return (
     <Box sx={{ textAlign: "start" }}>
-      <Typography variant="h3">Light Macros Page</Typography>
+      <Typography variant="h3" color="primary" sx={{ textTransform: "uppercase" }}>установка меток света</Typography>
       <Divider sx={{ my: 2 }} />
       <LightMacrosForm onSubmit={handleSubmit} />
     </Box>
