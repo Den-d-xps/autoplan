@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "autoplan",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "version": "0.7.0",
+  "identifier": "dd.autoplan.dev",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -24,6 +24,11 @@
     }
   },
   "bundle": {
+    "resources": [
+      "../automation/dist/**/*",
+      "../node_modules/playwright/**/*",
+      "../node_modules/playwright-core/**/*"
+    ],
     "active": true,
     "targets": "all",
     "icon": [

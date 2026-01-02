@@ -1,6 +1,12 @@
 import { chromium } from "playwright";
 import { PATHS } from "../constants/paths.js";
 import { URLS } from "../constants/urls.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const chromiumPath = path.join(__dirname, "../../dist/playwright/chromium/chrome-win/chrome.exe");
 
 const [,, movie_name, time_value, cinema_number, position, id] = process.argv;
 
@@ -22,7 +28,8 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
 (async () => {
   report(0, "Запуск макроса установки света...");
   const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, {
-    headless: true,
+    headless: false,
+    executablePath: chromiumPath
   });
   const timeValue = JSON.parse(time_value);
 
@@ -110,13 +117,17 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
 
   // Шаг 3: Проверка: Метка уже установлена?
   await safeStep(50, "Проверка на существующую метку", async () => {
-    await macroInfo.waitFor({ state: 'visible' });
-    const macroText = await macroInfo.innerText();
-    const targetTime = `${timeValue.hh.toString().padStart(2, "0")}:${timeValue.mm.toString().padStart(2, "0")}:${timeValue.ss.toString().padStart(2, "0")}`;
-    const targetPosition = position === "start" ? "с начала фильма" : "с конца фильма";
+    const exists = await macroInfo.count(); // проверяем, есть ли элемент вообще
+    if (exists != 0) {
+    // Метка ещё не установлена — продолжаем без ошибок
+      await macroInfo.waitFor({ state: 'visible' });
+      const macroText = await macroInfo.innerText();
+      const targetTime = `${timeValue.hh.toString().padStart(2, "0")}:${timeValue.mm.toString().padStart(2, "0")}:${timeValue.ss.toString().padStart(2, "0")}`;
+      const targetPosition = position === "start" ? "с начала фильма" : "с конца фильма";
 
-    if (macroText.includes(targetTime) && macroText.includes(targetPosition)) {
-      throw new Error("Такая метка уже установлена!");
+      if (macroText.includes(targetTime) && macroText.includes(targetPosition)) {
+        throw new Error("Такая метка уже установлена!");
+      }
     }
   });
   
