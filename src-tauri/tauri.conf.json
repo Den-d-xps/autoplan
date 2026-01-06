@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "autoplan",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "identifier": "dd.autoplan.dev",
   "build": {
     "frontendDist": "../dist",
@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "autoplan",
-        "width": 800,
-        "height": 600,
+        "width": 1200,
+        "height": 800,
         "resizable": true,
         "fullscreen": false
       }
@@ -24,11 +24,14 @@
     }
   },
   "bundle": {
-    "resources": [
-      "../automation/dist/**/*",
-      "../node_modules/playwright/**/*",
-      "../node_modules/playwright-core/**/*"
-    ],
+    "resources": {
+      "../automation/dist/scripts/": "scripts/",
+      "../automation/dist/constants/": "constants/",
+      "../automation/chromium/": "chromium/",
+      "../automation/node.exe": "node.exe",
+      "../node_modules/playwright/": "node_modules/playwright/",
+      "../node_modules/playwright-core/": "node_modules/playwright-core/"
+    },
     "active": true,
     "targets": "all",
     "icon": [

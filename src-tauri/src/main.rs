@@ -5,58 +5,74 @@ use std::process::{Command, Stdio};
 use std::io::{BufRead, BufReader};
 use serde_json::Value;
 use std::path::PathBuf;
+use std::os::windows::process::CommandExt;
 
-fn get_node_path() -> PathBuf {
-    let exe_dir = std::env::current_exe().unwrap().parent().unwrap().to_path_buf();
-    exe_dir.join("_up_").join("automation").join("dist").join("node.exe")
-}
 
-fn automation_script(script_name: &str) -> Result<PathBuf, String> {
-    let exe_dir = std::env::current_exe()
+fn resolve_runtime_paths() -> Result<(PathBuf, PathBuf, PathBuf, PathBuf), String> {
+    let current_dir = std::env::current_exe()
         .map_err(|e| e.to_string())?
         .parent()
         .ok_or("Failed to get exe dir")?
         .to_path_buf();
 
-    let script_path = exe_dir
-        .join("_up_")
-        .join("automation")
-        .join("dist")
-        .join("scripts")
-        .join(script_name);
+    let browser_dir = current_dir.join("chromium");
+    let node_path = current_dir.join("node.exe");
+    let script_dir = current_dir.join("scripts");
 
-    if !script_path.exists() {
-        return Err(format!("Script not found: {:?}", script_path));
-    }
-
-    Ok(script_path)
+    Ok((current_dir, browser_dir, node_path, script_dir))
 }
+
+// fn get_node_path() -> PathBuf {
+//     let exe_dir = std::env::current_exe().unwrap().parent().unwrap().to_path_buf();
+//     exe_dir.join("_up_").join("node.exe")
+// }
+
+// fn automation_script(script_name: &str) -> Result<PathBuf, String> {
+//     let exe_dir = std::env::current_exe()
+//         .map_err(|e| e.to_string())?
+//         .parent()
+//         .ok_or("Failed to get exe dir")?
+//         .to_path_buf();
+
+//     let script_path = exe_dir
+//         .join("_up_")
+//         .join("scripts")
+//         .join(script_name);
+
+//     if !script_path.exists() {
+//         return Err(format!("Script not found: {:?}", script_path));
+//     }
+
+//     Ok(script_path)
+// }
 
 #[tauri::command]
 async fn login() -> Result<String, String> {
-    use std::env;
-    use std::path::PathBuf;
+    // use std::env;
+    // use std::path::PathBuf;
+    let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
 
     println!("========== LOGIN START ==========");
-
-    let exe = env::current_exe().map_err(|e| e.to_string())?;
-    println!("current_exe: {:?}", exe);
-
-    let exe_dir = exe.parent().ok_or("No exe parent")?;
-    println!("exe_dir: {:?}", exe_dir);
-
-    let node_path = get_node_path();
+    println!("current_exe: {:?}", current_dir);
+    println!("browser_dir: {:?}", browser_dir);
     println!("node_path: {:?}", node_path);
     println!("node exists: {}", node_path.exists());
+    println!("script_dir: {:?}", script_dir);
+    println!("script exists: {}", script_dir.exists());
 
-    let script_path = automation_script("login_and_save_auth.js")?;
-
+    let script_path = script_dir.join("login_and_save_auth.js");
     println!("script_path: {:?}", script_path);
     println!("script exists: {}", script_path.exists());
 
     let output = Command::new(&node_path)
+        .current_dir(&current_dir)
         .arg(&script_path)
         .env("NODE_ENV", "production")
+        .env(
+            "PLAYWRIGHT_BROWSERS_PATH", 
+            &browser_dir,
+        )
+        .creation_flags(0x08000000)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .output()
@@ -71,17 +87,29 @@ async fn login() -> Result<String, String> {
     println!("exit status: {:?}", output.status.code());
 
     if output.status.success() {
+        println!("login ok");
         Ok("login ok".into())
     } else {
+        println!("login failed");
         Err("login failed".into())
     }
 }
 
 #[tauri::command]
 async fn check_auth() -> Result<bool, String> {
-    let script = automation_script("check_auth.js")?;
-    let output = Command::new(get_node_path())
-        .arg(script)
+    println!("🚀 Запуск");
+    let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
+    let script_path = script_dir.join("check_auth.js");
+
+    let output = Command::new(&node_path)
+        .current_dir(&current_dir)
+        .arg(&script_path)
+        .env("NODE_ENV", "production")
+        .env(
+            "PLAYWRIGHT_BROWSERS_PATH", 
+            &browser_dir,
+        )
+        .creation_flags(0x08000000)
         .output()
         .map_err(|e| e.to_string())?;
 
@@ -91,16 +119,26 @@ async fn check_auth() -> Result<bool, String> {
 #[tauri::command]
 async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value, cinema_number: String, position: String, id: String) -> Result<String, String> {
     println!("🚀 Запуск");
-    let script_path = automation_script("instal_light_macros.js")?;
+
+    let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
+    let script_path = script_dir.join("instal_light_macros.js");
+
     let time_value_str = time_value.to_string();
-    let mut child = Command::new(get_node_path())
+    let mut child = Command::new(&node_path)
+        .current_dir(&current_dir)
         .arg(&script_path)
+        .env("NODE_ENV", "production")
+        .env(
+            "PLAYWRIGHT_BROWSERS_PATH", 
+            &browser_dir,
+        )
         .arg(&movie_name)
         .arg(&time_value_str)
         .arg(&cinema_number)
         .arg(&position)
         .arg(&id)
         .stdout(Stdio::piped())
+        .creation_flags(0x08000000)
         .spawn()
         .map_err(|e| e.to_string())?;
 

@@ -1,12 +1,7 @@
 import { chromium } from "playwright";
 import { PATHS } from "../constants/paths.js";
 import { URLS } from "../constants/urls.js";
-import path from "path";
-import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const chromiumPath = path.join(__dirname, "../../dist/playwright/chromium/chrome-win/chrome.exe");
 
 const [,, movie_name, time_value, cinema_number, position, id] = process.argv;
 
@@ -27,16 +22,19 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
 
 (async () => {
   report(0, "Запуск макроса установки света...");
+
   const context = await chromium.launchPersistentContext(PATHS.PROFILE_DIR, {
-    headless: false,
-    executablePath: chromiumPath
+    headless: true,
+    executablePath: chromium.executablePath(),
   });
+
+
   const timeValue = JSON.parse(time_value);
 
   const page = await context.newPage();
 
   await safeStep(5, "Переход на страницу контента...", async () => {
-    await page.goto(URLS.CONTENT, { waitUntil: "networkidle" });
+    await page.goto(URLS.CONTENT, { waitUntil: "domcontentloaded" });
   });
 
   // Обьявление всех локаторов
