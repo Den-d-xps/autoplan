@@ -21,7 +21,7 @@ export const runNextTask = createAsyncThunk(
       await invoke(task.script, { ...task.payload, id: task.id });
       dispatch(tasksActions.updateStatus({ id: task.id, status: Status.finished }));
     } catch (err) {
-      dispatch(tasksActions.updateStatus({ id: task.id, status: Status.error, error: err as string }));
+      dispatch(tasksActions.updateStatus({ id: task.id, status: Status.error }));
     }
 
     dispatch(runNextTask()); // рекурсивно запускаем следующий

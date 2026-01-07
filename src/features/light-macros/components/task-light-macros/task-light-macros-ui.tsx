@@ -63,7 +63,7 @@ export const TaskLightMacrosUI: React.FC<TTaskLightMacrosPropsUI> = ({
         </Box>
         <Box display="flex" >
           {status === Status.error 
-          ? <Typography variant="caption" color="error">`Ошибка: {error}`</Typography> 
+          ? <Typography variant="caption" color="error">{message}</Typography> 
           : <Typography variant="caption" color="inherit">{message}</Typography>}
         </Box>
       </CardContent>
