@@ -52,7 +52,6 @@ export default function DashboardLayout() {
         display: 'flex',
         overflow: 'hidden',
         height: '100%',
-        width: '100%',
       }}
     >
       <Header
@@ -72,6 +71,7 @@ export default function DashboardLayout() {
           flexDirection: 'column',
           flex: 1,
           minWidth: 0,
+          overflow: 'hidden',
         }}
       >
         <Toolbar sx={{ displayPrint: 'none' }} />
@@ -81,10 +81,10 @@ export default function DashboardLayout() {
             display: 'flex',
             flexDirection: 'column',
             flex: 1,
-            overflow: 'auto',
+            overflow: 'hidden',
           }}
         >
-          <Outlet />
+          <Outlet  />
         </Box>
       </Box>
     </Box>

@@ -1,8 +1,8 @@
-import { Box, Divider, Typography } from "@mui/material";
 import { LightMacrosForm } from "@feat/light-macros/";
 import type { TFormDataWithConvertedTime } from "@feat/light-macros/";
 import { useAppDispatch, useAppSelector } from "@store";
 import { tasksActions, tasksSelectors, runNextTask } from "@entities/tasks/";
+import { PageLayout } from "@/shared/components";
 
 
 export const LightMacrosPage = () => {
@@ -27,10 +27,8 @@ export const LightMacrosPage = () => {
   }
 
   return (
-    <Box sx={{ textAlign: "start" }}>
-      <Typography variant="h3" color="primary" sx={{ textTransform: "uppercase" }}>установка меток света</Typography>
-      <Divider sx={{ my: 2 }} />
+    <PageLayout title="установка меток света">
       <LightMacrosForm onSubmit={handleSubmit} />
-    </Box>
+    </PageLayout>
   );
 };

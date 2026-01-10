@@ -1,13 +1,11 @@
-import { Box, Divider, Typography } from "@mui/material";
+import { PageLayout } from "@/shared/components";
 import { TaskList } from "@widgets/";
 
 
 export const TasksPage = () => {
   return (
-    <Box sx={{ textAlign: "start" }}>
-      <Typography variant="h3" color="primary" sx={{ textTransform: "uppercase" }} >Список задач</Typography>
-      <Divider sx={{ my: 2 }} />
+    <PageLayout title="Список задач">
       <TaskList />
-    </Box>
+    </PageLayout>
   )
 };

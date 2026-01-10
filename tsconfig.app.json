@@ -33,7 +33,7 @@
       "@entities/*": ["src/entities/*"],
       "@feat/*": ["src/features/*"],
       "@pages/": ["src/pages/"],
-      "@shared/": ["src/shared/"],
+      "@shared/components/": ["src/shared/components/"],
       "@widgets/": ["src/widgets/"],
     }
   },
