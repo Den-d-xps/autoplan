@@ -37,7 +37,7 @@ export interface DashboardHeaderProps {
   logo?: React.ReactNode;
   title?: string;
   menuOpen: boolean;
-  onToggleMenu: (open: boolean) => void;
+  onToggleMenu: () => void;
 }
 
 export const Header = ({
@@ -49,7 +49,7 @@ export const Header = ({
   const theme = useTheme();
 
   const handleMenuOpen = React.useCallback(() => {
-    onToggleMenu(!menuOpen);
+    onToggleMenu();
   }, [menuOpen, onToggleMenu]);
 
   const getMenuIcon = React.useCallback(

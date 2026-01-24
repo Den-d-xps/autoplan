@@ -1,53 +1,24 @@
-import * as React from 'react';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import { Outlet } from 'react-router';
 import { Header, Sidebar } from '@widgets/';
+import { useAppDispatch, useAppSelector } from '../store';
+import { sidebarSelectors, toggleExpanded } from '@/widgets/sidebar';
 
 
 export default function DashboardLayout() {
-  const theme = useTheme();
 
-  const [isDesktopNavigationExpanded, setIsDesktopNavigationExpanded] =
-    React.useState(true);
-  const [isMobileNavigationExpanded, setIsMobileNavigationExpanded] =
-    React.useState(false);
+  const isMenuOpen = useAppSelector(sidebarSelectors.selectExpanded);
+  const dispatch = useAppDispatch();
 
-  const isOverMdViewport = useMediaQuery(theme.breakpoints.up('md'));
+  const toggleMenu = () => {
+    dispatch(toggleExpanded());
+  };
 
-  const isNavigationExpanded = isOverMdViewport
-    ? isDesktopNavigationExpanded
-    : isMobileNavigationExpanded;
-
-  const setIsNavigationExpanded = React.useCallback(
-    (newExpanded: boolean) => {
-      if (isOverMdViewport) {
-        setIsDesktopNavigationExpanded(newExpanded);
-      } else {
-        setIsMobileNavigationExpanded(newExpanded);
-      }
-    },
-    [
-      isOverMdViewport,
-      setIsDesktopNavigationExpanded,
-      setIsMobileNavigationExpanded,
-    ],
-  );
-
-  const handleToggleHeaderMenu = React.useCallback(
-    (isExpanded: boolean) => {
-      setIsNavigationExpanded(isExpanded);
-    },
-    [setIsNavigationExpanded],
-  );
-
-  const layoutRef = React.useRef<HTMLDivElement>(null);
+  
 
   return (
     <Box
-      ref={layoutRef}
       sx={{
         display: 'flex',
         overflow: 'hidden',
@@ -57,13 +28,12 @@ export default function DashboardLayout() {
       <Header
         // logo={<SitemarkIcon />}
         title="AUTOPLAN"
-        menuOpen={isNavigationExpanded}
-        onToggleMenu={handleToggleHeaderMenu}
+        menuOpen={isMenuOpen}
+        onToggleMenu={toggleMenu}
       />
       <Sidebar
-        expanded={isNavigationExpanded}
-        setExpanded={setIsNavigationExpanded}
-        container={layoutRef?.current ?? undefined}
+        expanded={isMenuOpen}
+        setExpanded={toggleMenu}
       />
       <Box
         sx={{

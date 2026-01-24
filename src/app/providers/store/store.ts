@@ -6,10 +6,12 @@ import {
 } from 'react-redux';
 import { authSlice } from '@feat/auth/model';
 import { taskQueueSlice } from '@entities/tasks';
+import { sidebarSlice } from '@/widgets/sidebar';
 
 
 const rootReducer = combineSlices(
   authSlice,
+  sidebarSlice,
   taskQueueSlice
 );
 

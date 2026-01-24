@@ -1,29 +1,26 @@
-import * as React from 'react';
-import Divider from '@mui/material/Divider';
-import type {} from '@mui/material/themeCssVarsAugmentation';
-import { getDrawerSxTransitionMixin } from '../../../../shared/mixins';
-import SidebarContext from '../../context/sidebar-context';
+import { Divider } from '@mui/material';
+import type { ISidebarDeviderItemProps } from './types';
+import { useAppSelector } from '@/app/providers/store';
+import { sidebarSelectors } from '../../model/sidebar-slice';
 
-export default function SidebarDividerItem() {
-  const sidebarContext = React.useContext(SidebarContext);
-  if (!sidebarContext) {
-    throw new Error('Sidebar context was used without a provider.');
-  }
-  const { fullyExpanded = true, hasDrawerTransitions } = sidebarContext;
+
+export function SidebarDividerItem({ id }: ISidebarDeviderItemProps) {
+  const expanded = useAppSelector(sidebarSelectors.selectExpanded);
 
   return (
-    <li style={{ 
-      flexGrow: 1,
-      alignContent: 'end',
-    }}>
+    <li
+      key={id}
+      style={{
+        flexGrow: 1,
+        alignContent: 'end',
+      }}
+    >
       <Divider
         sx={{
           borderBottomWidth: 1,
           my: 1,
-          mx: -0.5,
-          ...(hasDrawerTransitions
-            ? getDrawerSxTransitionMixin(fullyExpanded, 'margin')
-            : {}),
+          mx: expanded ? -1 : -0.5,
+          transition: 'margin 300ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       />
     </li>

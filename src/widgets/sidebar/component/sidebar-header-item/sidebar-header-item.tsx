@@ -1,35 +1,19 @@
-import * as React from 'react';
-import ListSubheader from '@mui/material/ListSubheader';
-import type {} from '@mui/material/themeCssVarsAugmentation';
-import { getDrawerSxTransitionMixin } from '../../../../shared/mixins';
-import SidebarContext from '../../context/sidebar-context';
+import { ListSubheader } from '@mui/material';
+import type { ISidebarHeaderItemProps } from './types';
+import { useAppSelector } from '@/app/providers/store';
+import { sidebarSelectors } from '../../model/sidebar-slice';
 
-export interface DashboardSidebarHeaderItemProps {
-  children?: React.ReactNode;
-}
 
-export default function SidebarHeaderItem({
-  children,
-}: DashboardSidebarHeaderItemProps) {
-  const sidebarContext = React.useContext(SidebarContext);
-  if (!sidebarContext) {
-    throw new Error('Sidebar context was used without a provider.');
-  }
-  const {
-    mini = false,
-    fullyExpanded = true,
-    hasDrawerTransitions,
-  } = sidebarContext;
+export function SidebarHeaderItem({ title }: ISidebarHeaderItemProps) {
+  const expanded = useAppSelector(sidebarSelectors.selectExpanded);
 
   return (
     <ListSubheader
       sx={{
         fontSize: 12,
-        fontWeight: '600',
-        height: mini ? 0 : 36,
-        ...(hasDrawerTransitions
-          ? getDrawerSxTransitionMixin(fullyExpanded, 'height')
-          : {}),
+        fontWeight: 600,
+        height: expanded ? 36 : 0,
+        position: 'relative',
         px: 1.5,
         py: 0,
         minWidth: 240,
@@ -37,9 +21,10 @@ export default function SidebarHeaderItem({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         zIndex: 2,
+        transition: 'height 500ms cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
-      {children}
+      {title}
     </ListSubheader>
   );
 }

@@ -1,1 +1,2 @@
-export { Sidebar } from './sidebar';
+export * from './component';
+export * from './model';
