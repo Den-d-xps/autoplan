@@ -8,6 +8,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Provider } from 'react-redux';
 import { store } from '@store';
 import { useTauriEvent } from '@/entities/tasks';
+import { ModalsRoot } from '@/features/modal/components/modal-root/modal-root';
+
 
 export const App = () => {
   return (
@@ -16,6 +18,7 @@ export const App = () => {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <CssBaseline enableColorScheme />
           <InitialApp />
+          <ModalsRoot />
         </LocalizationProvider>
       </Provider>
     </ AppTheme>

@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 import type { ISidebarItemProps } from "./type";
 import { SidebarItemUI } from "./sidebar-item-ui";
-import { useAppSelector } from "@/app/providers/store";
+import { useAppDispatch, useAppSelector } from "@/app/providers/store";
 import { sidebarSelectors } from "../../model/sidebar-slice";
+import { openModal } from "@feat/modal";
 
 
 export const SidebarItem  = ({
@@ -15,18 +16,17 @@ export const SidebarItem  = ({
 }: ISidebarItemProps) => {
 
   const expanded = useAppSelector(sidebarSelectors.selectExpanded);
+  const dispatch = useAppDispatch();
 
   const handleClick = useCallback(() => {
-    //  onPageItemClick?.(id, false);
- 
      switch (action.type) {
        case 'route':
          // навигация произойдёт через Link
          break;
  
-       // case 'modal':
-       //   modalContext?.openModal(action.modalId);
-       //   break;
+       case 'modal':
+         dispatch(openModal(action.modalId));
+         break;
  
        case 'callback':
          action.onClick();

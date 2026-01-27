@@ -1,8 +1,5 @@
 
+
 export const SettingsPage = () => {
-  return (
-    <>
-      <div>SettingsPage</div>
-    </>
-  )
+  return <div>Настройки</div>;
 };

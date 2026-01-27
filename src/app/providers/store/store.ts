@@ -7,11 +7,14 @@ import {
 import { authSlice } from '@feat/auth/model';
 import { taskQueueSlice } from '@entities/tasks';
 import { sidebarSlice } from '@/widgets/sidebar';
+import { modalSlice } from '@feat/modal';
+
 
 
 const rootReducer = combineSlices(
   authSlice,
   sidebarSlice,
+  modalSlice,
   taskQueueSlice
 );
 

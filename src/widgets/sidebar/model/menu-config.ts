@@ -12,11 +12,11 @@ export const NestedItems: MenuItem[] = [
   {
     id: 'settings',
     title: 'Настройки',
-    action: { type: 'route', to: '/settings' },
+    action: { type: 'modal', modalId: 'settings' },
   },
   {
     id: 'info',
     title: 'О программе',
-    action: { type: 'route', to: '/info' },
+    action: { type: 'modal', modalId: 'info' },
   },
 ];
