@@ -101,10 +101,10 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
     await searchSPLInput.waitFor({ state: 'visible' });
     await searchSPLInput.fill(movie_name);
 
-    const resultFound = await Promise.race([
-      tableResults.waitFor({ state: "visible", timeout: 5000 }).then(() => true).catch(() => false),
-      notFoundMovie.waitFor({ state: "visible", timeout: 5000 }).then(() => false).catch(() => false),
-    ]);
+    const resultFound = await Promise.any([
+      tableResults.waitFor({ state: 'visible' }).then(() => true),
+      notFoundMovie.waitFor({ state: 'visible' }).then(() => false),
+    ]).catch(() => false);
 
     if (!resultFound) {
       throw new Error("CPL не найден...");
