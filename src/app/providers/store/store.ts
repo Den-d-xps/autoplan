@@ -9,6 +9,7 @@ import { taskQueueSlice } from '@entities/tasks';
 import { sidebarSlice } from '@/widgets/sidebar';
 import { modalSlice } from '@feat/modal';
 import { settingsSlice } from '@entities/settings';
+import { userSlice } from '@entities/user';
 
 
 
@@ -17,7 +18,8 @@ const rootReducer = combineSlices(
   sidebarSlice,
   modalSlice,
   taskQueueSlice,
-  settingsSlice
+  settingsSlice,
+  userSlice
 );
 
 export const store = configureStore({

@@ -22,29 +22,6 @@ fn resolve_runtime_paths() -> Result<(PathBuf, PathBuf, PathBuf, PathBuf), Strin
     Ok((current_dir, browser_dir, node_path, script_dir))
 }
 
-// fn get_node_path() -> PathBuf {
-//     let exe_dir = std::env::current_exe().unwrap().parent().unwrap().to_path_buf();
-//     exe_dir.join("_up_").join("node.exe")
-// }
-
-// fn automation_script(script_name: &str) -> Result<PathBuf, String> {
-//     let exe_dir = std::env::current_exe()
-//         .map_err(|e| e.to_string())?
-//         .parent()
-//         .ok_or("Failed to get exe dir")?
-//         .to_path_buf();
-
-//     let script_path = exe_dir
-//         .join("_up_")
-//         .join("scripts")
-//         .join(script_name);
-
-//     if !script_path.exists() {
-//         return Err(format!("Script not found: {:?}", script_path));
-//     }
-
-//     Ok(script_path)
-// }
 
 #[tauri::command]
 async fn login() -> Result<String, String> {
@@ -167,9 +144,58 @@ async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value,
     }
 }
 
+#[tauri::command]
+async fn get_theaters(app: AppHandle) -> Result<String, String> {
+    println!("🚀 Запуск");
+    let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
+    let script_path = script_dir.join("add_theaters.js");
+
+    let mut child = Command::new(&node_path)
+        .current_dir(&current_dir)
+        .arg(&script_path)
+        .env("NODE_ENV", "production")
+        .env(
+            "PLAYWRIGHT_BROWSERS_PATH", 
+            &browser_dir,
+        )
+        .stdout(Stdio::piped())
+        .creation_flags(0x08000000)
+        .spawn()
+        .map_err(|e| e.to_string())?;
+
+    let stdout = child.stdout.take().unwrap();
+    let reader = BufReader::new(stdout);
+
+    // Читаем строки stdout по мере появления
+    for line in reader.lines() {
+        if let Ok(msg) = line {
+            if let Ok(json) = serde_json::from_str::<Value>(&msg) {
+                println!("ок");
+                if json.get("type") == Some(&Value::String("theaters".into())) {
+                    app.emit("theaters_list", json["payload"].clone()).ok();
+                }
+            } else {
+                println!("не ок");
+                // app.emit("theaters_list", serde_json::json!([])).ok();
+            }
+        }
+    }
+
+    let status = child.wait().map_err(|e| e.to_string())?;
+    if status.success() {
+        println!("ок");
+        println!("конец");
+        Ok("✅ Макрос завершён".into())
+    } else {
+        println!("не ок");
+        println!("конец");
+        Err("❌ Ошибка выполнения макроса".into())
+    }
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![login, check_auth, set_light_macros])
+        .invoke_handler(tauri::generate_handler![login, check_auth, set_light_macros, get_theaters])
         .run(tauri::generate_context!())
         .expect("Ошибка при запуске Tauri приложения");
 }
