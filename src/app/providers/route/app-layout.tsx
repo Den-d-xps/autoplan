@@ -52,6 +52,7 @@ export default function DashboardLayout() {
             flexDirection: 'column',
             flex: 1,
             overflow: 'hidden',
+            padding: '2rem'
           }}
         >
           <Outlet  />

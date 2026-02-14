@@ -4,6 +4,7 @@ import {
   useDispatch as dispatchHook,
   useSelector as selectorHook
 } from 'react-redux';
+import { appSlice } from '@/app/model';
 import { authSlice } from '@feat/auth/model';
 import { taskQueueSlice } from '@entities/tasks';
 import { sidebarSlice } from '@/widgets/sidebar';
@@ -14,6 +15,7 @@ import { userSlice } from '@entities/user';
 
 
 const rootReducer = combineSlices(
+  appSlice,
   authSlice,
   sidebarSlice,
   modalSlice,

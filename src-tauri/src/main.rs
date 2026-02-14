@@ -29,6 +29,7 @@ async fn login() -> Result<String, String> {
     // use std::path::PathBuf;
     let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
 
+    println!("🚀 Запуск login");
     println!("========== LOGIN START ==========");
     println!("current_exe: {:?}", current_dir);
     println!("browser_dir: {:?}", browser_dir);
@@ -74,7 +75,7 @@ async fn login() -> Result<String, String> {
 
 #[tauri::command]
 async fn check_auth() -> Result<bool, String> {
-    println!("🚀 Запуск");
+    println!("🚀 Запуск check_auth");
     let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
     let script_path = script_dir.join("check_auth.js");
 
@@ -95,7 +96,7 @@ async fn check_auth() -> Result<bool, String> {
 
 #[tauri::command]
 async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value, cinema_number: String, position: String, id: String) -> Result<String, String> {
-    println!("🚀 Запуск");
+    println!("🚀 Запуск set_light_macros");
 
     let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
     let script_path = script_dir.join("instal_light_macros.js");
@@ -146,7 +147,7 @@ async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value,
 
 #[tauri::command]
 async fn get_theaters(app: AppHandle) -> Result<String, String> {
-    println!("🚀 Запуск");
+    println!("🚀 Запуск get_theaters");
     let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
     let script_path = script_dir.join("add_theaters.js");
 
