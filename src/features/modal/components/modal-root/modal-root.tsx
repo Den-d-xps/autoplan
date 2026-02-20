@@ -1,5 +1,6 @@
 import { ModalLayout } from "../modal-layout/modal-layout";
 import { InfoPage, SettingsPage } from "@/pages";
+import { LogoutConfirm } from "@feat/auth";
 
 export const ModalsRoot = () => {
 
@@ -16,6 +17,12 @@ export const ModalsRoot = () => {
         title='О программе'
       >
         <InfoPage />
+      </ModalLayout>
+      <ModalLayout
+        id='logout-confirm'
+        title='Выход'
+      >
+        <LogoutConfirm />
       </ModalLayout>
     </>
   );

@@ -20,3 +20,8 @@ export const handleCheckAuth = createAsyncThunk("auth/check", async () => {
     throw err;
   }
 });
+
+
+export const handleLogout = createAsyncThunk("auth/logout", async () => {
+  await invoke("clear_session_and_exit");
+});

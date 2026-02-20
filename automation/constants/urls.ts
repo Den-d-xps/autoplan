@@ -4,4 +4,5 @@ export const URLS = {
   CONTENT: "https://kinoplan.io/tms/content",
   DASHBOARD: "https://kinoplan.io/dashboard",
   THEATERS: "https://kinoplan.io/cinemas/settings/7/information",
+  PROFILE: "https://kinoplan.io/user/profile",
 };

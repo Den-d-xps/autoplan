@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface IUserState {
   name: string;
@@ -17,9 +17,14 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    set_theaters: (state, action) => {
+    set_theaters: (state, action: PayloadAction<string[]>) => {
       state.theaters = action.payload;
-    }
+    },
+    set_user_info: (state, action: PayloadAction<{ name: string; avatar: string }>) => {
+      state.name = action.payload.name;
+      state.avatar = action.payload.avatar;
+    },
+    reset: () => initialState,
   },
   selectors: {
     selectName: (state) => state.name,

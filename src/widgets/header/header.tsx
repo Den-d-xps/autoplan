@@ -10,7 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link } from 'react-router';
-import { LoginButton } from '@feat/auth/';
+import { UserBadge } from '@feat/auth/';
 import { TaskBadge } from '@entities/tasks';
 // import ThemeSwitcher from './ThemeSwitcher';
 
@@ -119,8 +119,7 @@ export const Header = ({
           >
             <TaskBadge />
             <Stack direction="row" alignItems="center">
-              
-              <LoginButton />
+              <UserBadge />
             </Stack>
           </Stack>
         </Stack>

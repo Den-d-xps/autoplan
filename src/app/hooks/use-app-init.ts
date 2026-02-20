@@ -17,6 +17,16 @@ async function loadTheaters(dispatch: ReturnType<typeof useAppDispatch>) {
   unlistenTheaters();
 }
 
+async function loadUserInfo(dispatch: ReturnType<typeof useAppDispatch>) {
+  const unlistenUserInfo = await listen("user_info", (event) => {
+    const payload = event.payload as { name: string; avatar: string };
+    dispatch(userActions.set_user_info(payload));
+  });
+
+  await invoke("get_user_info");
+  unlistenUserInfo();
+}
+
 export const useAppInit = () => {
   const dispatch = useAppDispatch();
   const isInitialized = useAppSelector(appSelectors.selectIsInitialized);
@@ -38,8 +48,12 @@ export const useAppInit = () => {
         await dispatch(handleLogin()).unwrap();
       }
 
-      // Шаг 3: Загрузка кинотеатров
-      dispatch(appActions.setProgress({ progress: 60, message: "Загрузка кинотеатров" }));
+      // Шаг 3: Загрузка профиля пользователя
+      dispatch(appActions.setProgress({ progress: 45, message: "Загрузка профиля" }));
+      await loadUserInfo(dispatch);
+
+      // Шаг 4: Загрузка кинотеатров
+      dispatch(appActions.setProgress({ progress: 70, message: "Загрузка кинотеатров" }));
       await loadTheaters(dispatch);
 
       // Готово — задержка чтобы анимация статуса успела проиграться

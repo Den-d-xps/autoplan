@@ -171,7 +171,6 @@ async fn get_theaters(app: AppHandle) -> Result<String, String> {
     for line in reader.lines() {
         if let Ok(msg) = line {
             if let Ok(json) = serde_json::from_str::<Value>(&msg) {
-                println!("ок");
                 if json.get("type") == Some(&Value::String("theaters".into())) {
                     app.emit("theaters_list", json["payload"].clone()).ok();
                 }
@@ -184,19 +183,82 @@ async fn get_theaters(app: AppHandle) -> Result<String, String> {
 
     let status = child.wait().map_err(|e| e.to_string())?;
     if status.success() {
-        println!("ок");
-        println!("конец");
         Ok("✅ Макрос завершён".into())
     } else {
-        println!("не ок");
-        println!("конец");
         Err("❌ Ошибка выполнения макроса".into())
     }
 }
 
+#[tauri::command]
+async fn get_user_info(app: AppHandle) -> Result<String, String> {
+    println!("🚀 Запуск get_user_info");
+    let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
+    let script_path = script_dir.join("get_user_info.js");
+
+    let mut child = Command::new(&node_path)
+        .current_dir(&current_dir)
+        .arg(&script_path)
+        .env("NODE_ENV", "production")
+        .env(
+            "PLAYWRIGHT_BROWSERS_PATH",
+            &browser_dir,
+        )
+        .stdout(Stdio::piped())
+        .creation_flags(0x08000000)
+        .spawn()
+        .map_err(|e| e.to_string())?;
+
+    let stdout = child.stdout.take().unwrap();
+    let reader = BufReader::new(stdout);
+
+    for line in reader.lines() {
+        if let Ok(msg) = line {
+            if let Ok(json) = serde_json::from_str::<Value>(&msg) {
+                if json.get("type") == Some(&Value::String("user_info".into())) {
+                    app.emit("user_info", json["payload"].clone()).ok();
+                }
+            }
+        }
+    }
+
+    let status = child.wait().map_err(|e| e.to_string())?;
+    if status.success() {
+        Ok("✅ Данные пользователя получены".into())
+    } else {
+        Err("❌ Ошибка получения данных пользователя".into())
+    }
+}
+
+#[tauri::command]
+async fn clear_session_and_exit(app: AppHandle) -> Result<String, String> {
+    println!("🚀 Запуск clear_session_and_exit");
+
+    let appdata = std::env::var("APPDATA")
+        .map_err(|_| "APPDATA не найден".to_string())?;
+
+    let base_dir = PathBuf::from(&appdata).join("autoplan");
+    let profile_dir = base_dir.join("profile");
+    let auth_file = base_dir.join("auth.json");
+
+    if profile_dir.exists() {
+        std::fs::remove_dir_all(&profile_dir)
+            .map_err(|e| format!("Ошибка удаления profile: {e}"))?;
+        println!("✅ profile/ удалён");
+    }
+
+    if auth_file.exists() {
+        std::fs::remove_file(&auth_file)
+            .map_err(|e| format!("Ошибка удаления auth.json: {e}"))?;
+        println!("✅ auth.json удалён");
+    }
+
+    app.exit(0);
+    Ok("✅ Сессия очищена".into())
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![login, check_auth, set_light_macros, get_theaters])
+        .invoke_handler(tauri::generate_handler![login, check_auth, set_light_macros, get_theaters, get_user_info, clear_session_and_exit])
         .run(tauri::generate_context!())
         .expect("Ошибка при запуске Tauri приложения");
 }
