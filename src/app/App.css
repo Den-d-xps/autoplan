@@ -27,7 +27,7 @@ body,
 }
 
 .scroll::-webkit-scrollbar {
-  width: 14px;
+  width: 6px;
 }
 
 .scroll::-webkit-scrollbar-track {
@@ -37,8 +37,9 @@ body,
 .scroll::-webkit-scrollbar-thumb {
   background-color: rgba(120,120,120,.4);
   border-radius: 10px;
-  border: 5px solid transparent;
+  border: 1px solid transparent;
   background-clip: content-box;
+  padding: 10px;
 }
 
 .scroll::-webkit-scrollbar-thumb:hover {

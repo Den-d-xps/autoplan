@@ -7,7 +7,7 @@ import {
   Typography
 } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { CinemaStyledButton } from "../cinema-styled-button";
+import { CinemaStyledButton } from "@shared/components/";
 import type { TCinemaMultiSelectButtonsUIProps } from "./types";
 import { ToggleButtonsChoice } from "../toggle-buttons-choice";
 

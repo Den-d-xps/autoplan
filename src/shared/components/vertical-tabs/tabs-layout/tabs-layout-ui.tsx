@@ -21,7 +21,7 @@ export const TabsLayoutUI = ({
         variant="standard"
         value={value}
         onChange={handleChange}
-        sx={{ borderRight: 3, borderColor: 'divider', }}
+        sx={{ borderRight: 3, borderColor: 'divider', flex: '0 0 150px' }}
         slotProps={{
           list : {
             sx: {

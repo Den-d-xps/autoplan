@@ -21,7 +21,10 @@ export const ModalLayout = ({ id, title, children }: IModalLayoutProps) => {
       <Dialog
         onClose={handleClose}
         open={open}
-        sx={{ '& .MuiDialog-paper': { width: '100%' } }}
+        maxWidth={false}
+        sx={{
+          '& .MuiDialog-paper': { width: '80vw' }
+        }}
       >
         <DialogTitle sx={{ m: 0, p: 2, background: '#212121', boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)' }}>
           {title}
