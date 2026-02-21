@@ -3,8 +3,10 @@ import { useAppDispatch, useAppSelector } from "@store";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { handleCheckAuth, handleLogin } from "@feat/auth";
-import { userActions } from "@entities/user";
+import { userActions, userSelectors } from "@entities/user";
+import { settingsActions, loadSettings, saveSettings } from "@entities/settings";
 import { appActions, appSelectors } from "@/app/model";
+import { store } from "@store";
 
 async function loadTheaters(dispatch: ReturnType<typeof useAppDispatch>) {
   const unlistenTheaters = await listen("theaters_list", (event) => {
@@ -55,6 +57,21 @@ export const useAppInit = () => {
       // Шаг 4: Загрузка кинотеатров
       dispatch(appActions.setProgress({ progress: 70, message: "Загрузка кинотеатров" }));
       await loadTheaters(dispatch);
+
+      // Шаг 5: Загрузка настроек (после кинотеатров, с фильтрацией)
+      dispatch(appActions.setProgress({ progress: 85, message: "Загрузка настроек" }));
+      const savedSettings = await loadSettings();
+      const userTheaters = userSelectors.selectTheaters(store.getState());
+      const userTheaterNumbers = userTheaters.map((t) => t.slice(2));
+      const filteredTheaters = savedSettings.main.theaters.filter(
+        (t) => userTheaterNumbers.includes(t)
+      );
+      const filteredSettings = { ...savedSettings, main: { ...savedSettings.main, theaters: filteredTheaters } };
+      dispatch(settingsActions.setAllSettings(filteredSettings));
+
+      if (filteredTheaters.length !== savedSettings.main.theaters.length) {
+        await saveSettings(filteredSettings);
+      }
 
       // Готово — задержка чтобы анимация статуса успела проиграться
       dispatch(appActions.setProgress({ progress: 100, message: "Готово" }));

@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@store';
 import { userSelectors } from '@entities/user';
-import { settingsActions, settingsSelectors } from '@entities/settings';
+import { settingsActions, settingsSelectors, saveSettings } from '@entities/settings';
 import { DefaultTheatersSelectUI } from './default-theaters-select-ui';
 
 
@@ -11,19 +11,22 @@ export const DefaultTheatersSelect = () => {
 
   const allCinemaNumbers = allTheaters.map((t) => t.slice(2));
 
-  const handleToggle = (cinema: string) => {
+  const handleToggle = async (cinema: string) => {
     const updated = defaultTheaters.includes(cinema)
       ? defaultTheaters.filter((x) => x !== cinema)
       : [...defaultTheaters, cinema];
     dispatch(settingsActions.setTheaters(updated));
+    await saveSettings({ main: { theaters: updated } });
   };
 
-  const handleSelectAll = () => {
+  const handleSelectAll = async () => {
     dispatch(settingsActions.setTheaters(allCinemaNumbers));
+    await saveSettings({ main: { theaters: allCinemaNumbers } });
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     dispatch(settingsActions.setTheaters([]));
+    await saveSettings({ main: { theaters: [] } });
   };
 
   return (
