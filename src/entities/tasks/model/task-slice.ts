@@ -47,6 +47,14 @@ export const taskQueueSlice = createSlice({
     },
     setRunning: (state, action: PayloadAction<boolean>) => {
       state.isRunning = action.payload
+    },
+    clearCompleted: (state) => {
+      state.queue = state.queue.filter(
+        (task) => task.status === Status.pending || task.status === Status.running
+      );
+    },
+    clearSuccessful: (state) => {
+      state.queue = state.queue.filter((task) => task.status !== Status.finished);
     }
   },
   selectors: {
