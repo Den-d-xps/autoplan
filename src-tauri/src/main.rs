@@ -259,6 +259,7 @@ async fn clear_session_and_exit(app: AppHandle) -> Result<String, String> {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![login, check_auth, set_light_macros, get_theaters, get_user_info, clear_session_and_exit])
         .run(tauri::generate_context!())
         .expect("Ошибка при запуске Tauri приложения");
