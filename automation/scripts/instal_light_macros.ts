@@ -20,6 +20,10 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
   }
 }
 
+function timeToSeconds(hh: string, mm: string, ss: string): number {
+  return parseInt(hh) * 3600 + parseInt(mm) * 60 + parseInt(ss);
+}
+
 (async () => {
   report(0, "Запуск макроса установки света...");
 
@@ -57,6 +61,7 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
   const rowsTableResults = tableResults.locator(".b-simple-table-row");
   const firstSPLResult = rowsTableResults.first();
   const macroInfo = firstSPLResult.locator(".b-simple-table-cell:has-text('Время титров')");
+  const durationCell = firstSPLResult.locator(".b-simple-table-cell").nth(6);
   const resultCheckbox = firstSPLResult.locator(".checkbox__input");
   const lightButton = sectionHeader.locator('button:has(span:has-text("Свет"))');
   const popupContainer = page.locator(".ui-popup-container");
@@ -129,8 +134,31 @@ async function safeStep(progress: number, message: string, stepFn: () => Promise
     }
   });
   
+  // Шаг 3.5: Проверка: Время метки не превышает длительность CPL
+  await safeStep(55, "Проверка длительности CPL...", async () => {
+    await durationCell.waitFor({ state: 'visible' });
+    const durationText = (await durationCell.innerText()).trim();
+
+    const durationParts = durationText.split(":");
+    if (durationParts.length !== 3) {
+      throw new Error(`Не удалось распознать длительность CPL: "${durationText}"`);
+    }
+
+    const [dh, dm, ds] = durationParts;
+    const cplDurationSeconds = timeToSeconds(dh, dm, ds);
+    const markerTimeSeconds = timeToSeconds(
+      timeValue.hh.toString().padStart(2, "0"),
+      timeValue.mm.toString().padStart(2, "0"),
+      timeValue.ss.toString().padStart(2, "0")
+    );
+
+    if (markerTimeSeconds >= cplDurationSeconds) {
+      throw new Error("Время метки превышает продолжительность CPL!");
+    }
+  });
+
   // Шаг 4: открытие окна "Свет"
-  await safeStep(55, "Настройка времени метки света.", async () => {
+  await safeStep(65, "Настройка времени метки света.", async () => {
     await resultCheckbox.waitFor({ state: 'visible' }); 
     await resultCheckbox.click();
     await lightButton.waitFor({ state: "visible" });
