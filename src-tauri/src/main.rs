@@ -5,8 +5,19 @@ use std::process::{Command, Stdio};
 use std::io::{BufRead, BufReader};
 use serde_json::Value;
 use std::path::PathBuf;
-use std::os::windows::process::CommandExt;
 
+
+/// Отключает отображение консольного окна при запуске дочернего процесса.
+/// На Windows применяет флаг CREATE_NO_WINDOW, на других платформах — no-op.
+fn configure_no_window(cmd: &mut Command) {
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+    }
+    #[cfg(not(target_os = "windows"))]
+    let _ = cmd;
+}
 
 fn resolve_runtime_paths() -> Result<(PathBuf, PathBuf, PathBuf, PathBuf), String> {
     let current_dir = std::env::current_exe()
@@ -16,17 +27,35 @@ fn resolve_runtime_paths() -> Result<(PathBuf, PathBuf, PathBuf, PathBuf), Strin
         .to_path_buf();
 
     let browser_dir = current_dir.join("chromium");
+
+    #[cfg(target_os = "windows")]
     let node_path = current_dir.join("node.exe");
+    #[cfg(not(target_os = "windows"))]
+    let node_path = current_dir.join("node");
+
     let script_dir = current_dir.join("scripts");
 
     Ok((current_dir, browser_dir, node_path, script_dir))
 }
 
+fn get_app_data_dir() -> Result<PathBuf, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let appdata = std::env::var("APPDATA")
+            .map_err(|_| "APPDATA не найден".to_string())?;
+        Ok(PathBuf::from(appdata).join("autoplan"))
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let home = std::env::var("HOME")
+            .map_err(|_| "HOME не найден".to_string())?;
+        Ok(PathBuf::from(home).join(".autoplan"))
+    }
+}
+
 
 #[tauri::command]
 async fn login() -> Result<String, String> {
-    // use std::env;
-    // use std::path::PathBuf;
     let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
 
     println!("🚀 Запуск login");
@@ -42,17 +71,16 @@ async fn login() -> Result<String, String> {
     println!("script_path: {:?}", script_path);
     println!("script exists: {}", script_path.exists());
 
-    let output = Command::new(&node_path)
-        .current_dir(&current_dir)
+    let mut cmd = Command::new(&node_path);
+    cmd.current_dir(&current_dir)
         .arg(&script_path)
         .env("NODE_ENV", "production")
-        .env(
-            "PLAYWRIGHT_BROWSERS_PATH", 
-            &browser_dir,
-        )
-        .creation_flags(0x08000000)
+        .env("PLAYWRIGHT_BROWSERS_PATH", &browser_dir)
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
+        .stderr(Stdio::piped());
+    configure_no_window(&mut cmd);
+
+    let output = cmd
         .output()
         .map_err(|e| format!("Failed to start node: {e}"))?;
 
@@ -79,17 +107,14 @@ async fn check_auth() -> Result<bool, String> {
     let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
     let script_path = script_dir.join("check_auth.js");
 
-    let output = Command::new(&node_path)
-        .current_dir(&current_dir)
+    let mut cmd = Command::new(&node_path);
+    cmd.current_dir(&current_dir)
         .arg(&script_path)
         .env("NODE_ENV", "production")
-        .env(
-            "PLAYWRIGHT_BROWSERS_PATH", 
-            &browser_dir,
-        )
-        .creation_flags(0x08000000)
-        .output()
-        .map_err(|e| e.to_string())?;
+        .env("PLAYWRIGHT_BROWSERS_PATH", &browser_dir);
+    configure_no_window(&mut cmd);
+
+    let output = cmd.output().map_err(|e| e.to_string())?;
 
     Ok(output.status.success())
 }
@@ -102,23 +127,20 @@ async fn set_light_macros(app: AppHandle, movie_name: String, time_value: Value,
     let script_path = script_dir.join("instal_light_macros.js");
 
     let time_value_str = time_value.to_string();
-    let mut child = Command::new(&node_path)
-        .current_dir(&current_dir)
+    let mut cmd = Command::new(&node_path);
+    cmd.current_dir(&current_dir)
         .arg(&script_path)
         .env("NODE_ENV", "production")
-        .env(
-            "PLAYWRIGHT_BROWSERS_PATH", 
-            &browser_dir,
-        )
+        .env("PLAYWRIGHT_BROWSERS_PATH", &browser_dir)
         .arg(&movie_name)
         .arg(&time_value_str)
         .arg(&cinema_number)
         .arg(&position)
         .arg(&id)
-        .stdout(Stdio::piped())
-        .creation_flags(0x08000000)
-        .spawn()
-        .map_err(|e| e.to_string())?;
+        .stdout(Stdio::piped());
+    configure_no_window(&mut cmd);
+
+    let mut child = cmd.spawn().map_err(|e| e.to_string())?;
 
     let stdout = child.stdout.take().unwrap();
     let reader = BufReader::new(stdout);
@@ -151,18 +173,15 @@ async fn get_theaters(app: AppHandle) -> Result<String, String> {
     let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
     let script_path = script_dir.join("add_theaters.js");
 
-    let mut child = Command::new(&node_path)
-        .current_dir(&current_dir)
+    let mut cmd = Command::new(&node_path);
+    cmd.current_dir(&current_dir)
         .arg(&script_path)
         .env("NODE_ENV", "production")
-        .env(
-            "PLAYWRIGHT_BROWSERS_PATH", 
-            &browser_dir,
-        )
-        .stdout(Stdio::piped())
-        .creation_flags(0x08000000)
-        .spawn()
-        .map_err(|e| e.to_string())?;
+        .env("PLAYWRIGHT_BROWSERS_PATH", &browser_dir)
+        .stdout(Stdio::piped());
+    configure_no_window(&mut cmd);
+
+    let mut child = cmd.spawn().map_err(|e| e.to_string())?;
 
     let stdout = child.stdout.take().unwrap();
     let reader = BufReader::new(stdout);
@@ -176,7 +195,6 @@ async fn get_theaters(app: AppHandle) -> Result<String, String> {
                 }
             } else {
                 println!("не ок");
-                // app.emit("theaters_list", serde_json::json!([])).ok();
             }
         }
     }
@@ -195,18 +213,15 @@ async fn get_user_info(app: AppHandle) -> Result<String, String> {
     let (current_dir, browser_dir, node_path, script_dir) = resolve_runtime_paths()?;
     let script_path = script_dir.join("get_user_info.js");
 
-    let mut child = Command::new(&node_path)
-        .current_dir(&current_dir)
+    let mut cmd = Command::new(&node_path);
+    cmd.current_dir(&current_dir)
         .arg(&script_path)
         .env("NODE_ENV", "production")
-        .env(
-            "PLAYWRIGHT_BROWSERS_PATH",
-            &browser_dir,
-        )
-        .stdout(Stdio::piped())
-        .creation_flags(0x08000000)
-        .spawn()
-        .map_err(|e| e.to_string())?;
+        .env("PLAYWRIGHT_BROWSERS_PATH", &browser_dir)
+        .stdout(Stdio::piped());
+    configure_no_window(&mut cmd);
+
+    let mut child = cmd.spawn().map_err(|e| e.to_string())?;
 
     let stdout = child.stdout.take().unwrap();
     let reader = BufReader::new(stdout);
@@ -233,10 +248,7 @@ async fn get_user_info(app: AppHandle) -> Result<String, String> {
 async fn clear_session_and_exit(app: AppHandle) -> Result<String, String> {
     println!("🚀 Запуск clear_session_and_exit");
 
-    let appdata = std::env::var("APPDATA")
-        .map_err(|_| "APPDATA не найден".to_string())?;
-
-    let base_dir = PathBuf::from(&appdata).join("autoplan");
+    let base_dir = get_app_data_dir()?;
     let profile_dir = base_dir.join("profile");
     let auth_file = base_dir.join("auth.json");
 

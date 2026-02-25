@@ -28,7 +28,6 @@
       "../automation/dist/scripts/": "scripts/",
       "../automation/dist/constants/": "constants/",
       "../automation/chromium/": "chromium/",
-      "../automation/node.exe": "node.exe",
       "../node_modules/playwright/": "node_modules/playwright/",
       "../node_modules/playwright-core/": "node_modules/playwright-core/"
     },
