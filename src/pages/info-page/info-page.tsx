@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { open } from "@tauri-apps/plugin-shell";
+import appIcon from "@/assets/app-icon.png";
 
 const DEVICON = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons";
 
@@ -24,7 +25,7 @@ export const InfoPage = () => {
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
         <Box
           component="img"
-          src="/app-icon.png"
+          src={appIcon}
           alt="Autoplan"
           sx={{ width: 64, height: 64 }}
         />
@@ -33,7 +34,7 @@ export const InfoPage = () => {
             AUTOPLAN
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            v0.9.0
+            v1.0.0
           </Typography>
         </Box>
       </Stack>
