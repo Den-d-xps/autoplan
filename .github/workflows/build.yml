@@ -1,0 +1,147 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Windows: .msi / .exe инсталлер
+  # ─────────────────────────────────────────────
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # Chromium кешируется между запусками — экономит ~5 мин и ~200 MB трафика
+      - name: Cache Playwright Chromium (Windows)
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: automation/chromium
+          key: playwright-chromium-win-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+        env:
+          # Playwright установит браузер прямо в automation/chromium/
+          # Структура: chromium-XXXX/chrome-win/chrome.exe
+          # Это совпадает с PLAYWRIGHT_BROWSERS_PATH в main.rs
+          PLAYWRIGHT_BROWSERS_PATH: automation\chromium
+
+      # Скачиваем портативный node.exe — бандлится через tauri.windows.conf.json
+      - name: Download portable Node.js (node.exe)
+        shell: bash
+        run: |
+          NODE_VERSION="20.11.0"
+          curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-win-x64.zip" -o node.zip
+          unzip -j node.zip "node-v${NODE_VERSION}-win-x64/node.exe" -d automation/
+          echo "node.exe ready: $(ls -lh automation/node.exe)"
+
+      - name: Build automation scripts
+        run: npm run build:scripts
+
+      - name: Build Tauri app (Windows)
+        run: npm run tauri build
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: autoplan-windows-${{ github.ref_name }}
+          path: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────
+  # macOS ARM64: .dmg для M-процессоров (M1/M2/M3)
+  # ─────────────────────────────────────────────
+  build-macos:
+    name: Build macOS (Apple Silicon)
+    runs-on: macos-latest  # macOS 14, ARM64 runner
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Cache Rust build (macOS)
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # Playwright на macOS runner установит macOS-совместимые пакеты
+      - name: Cache Playwright Chromium (macOS ARM64)
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: automation/chromium
+          key: playwright-chromium-macos-arm64-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: automation/chromium
+
+      # Скачиваем портативный node для macOS ARM64 — бандлится через tauri.macos.conf.json
+      - name: Download portable Node.js (macOS ARM64)
+        run: |
+          NODE_VERSION="20.11.0"
+          curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-darwin-arm64.tar.gz" -o node.tar.gz
+          tar -xzf node.tar.gz
+          cp "node-v${NODE_VERSION}-darwin-arm64/bin/node" automation/node
+          chmod +x automation/node
+          echo "node ready: $(ls -lh automation/node)"
+
+      - name: Build automation scripts
+        run: npm run build:scripts
+
+      - name: Build Tauri app (macOS ARM64)
+        run: npm run tauri build -- --target aarch64-apple-darwin
+
+      - name: Upload macOS DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: autoplan-macos-arm64-${{ github.ref_name }}
+          path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: error

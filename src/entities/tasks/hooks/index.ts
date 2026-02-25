@@ -1,0 +1,1 @@
+export { useTauriEvent } from "./use-tauri-event";

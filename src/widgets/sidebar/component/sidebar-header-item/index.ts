@@ -1,0 +1,1 @@
+export { SidebarHeaderItem } from './sidebar-header-item';

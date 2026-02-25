@@ -8,6 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+automation/chromium
+automation/node.exe
 dist
 dist-ssr
 *.local
@@ -21,4 +23,5 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
+
 *.sw?
